@@ -32,19 +32,15 @@ class TSL2561
 	uint8_t _it;
 
 	public:
-		TSL2561(void);
+		TSL2561(uint8_t i2c_address);
 		// TSL2561 object
+		// TSL2561_ADDR_0 (0x29 address with '0', connected to GND)
+		// TSL2561_ADDR   (0x39 default address, pin floating)
+		// TSL2561_ADDR_1 (0x49 address with '1' connected to VIN)
 
 		boolean begin(void);
-		// Initialize TSL2561 library with default address (0x39)
-		// Always returns true
-
-		boolean begin(uint8_t i2c_address);
-		// Initialize TSL2561 library to arbitrary address or:
-		// TSL2561_ADDR_0 (0x29 address with '0' shorted on board)
-		// TSL2561_ADDR   (0x39 default address)
-		// TSL2561_ADDR_1 (0x49 address with '1' shorted on board)
-		// Always returns true
+		// Initialize TSL2561 library
+		// returns true if device connected
 
 		boolean setPowerUp(void);
 		// Turn on TSL2561, begin integration

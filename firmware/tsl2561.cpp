@@ -20,26 +20,20 @@
 #include "math.h" //to use pow(x,a)
 
 
-TSL2561::TSL2561(void){
+TSL2561::TSL2561(uint8_t i2c_address){
+	_i2c_address = i2c_address;
+	_gain = false; //default gain x1
+	_it = 1; // default integration time = 101 ms
 }
 
 
 boolean TSL2561::begin(void)
 {
-	return(begin(TSL2561_ADDR));
-}
-
-
-boolean TSL2561::begin(uint8_t i2c_address)
-{
 	uint8_t ID;
-	_i2c_address = i2c_address;
-	_gain = false; //default gain x1
-	_it = 1; // default integration time = 101 ms
 	// start I2C
 	Wire.begin();
 	// read device ID
-	if (readByte(TSL2561_REG_ID,ID) && ID==80)
+	if (readByte(TSL2561_REG_ID,ID) && ID==0x50)
 	{
 		return true;
 	}

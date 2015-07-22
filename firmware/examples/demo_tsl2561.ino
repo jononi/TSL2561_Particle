@@ -1,22 +1,24 @@
-// This is the local version to be used with Particle Dev
 
-#include "tsl2561.h"
-
-
-/* first step is to get the sensor working and reading fine
-next step is to take goodies from Adafruit lib and add it
-specifically:
-- better constrcutor that check ID to ensure connection ok:done
-- auto-gain feature: done
-- fix the setTiming() mess: done
-- make illuminance var an Int instead of Double:done
-
+/*
+demo code to use TSL2561 sensor remotely.
+Cloud Function
+setExposure(Int gain, Int integrationTimeSwitch)
+gain:
+0 gain x1, 1 gain x16, 2 autogain
+integrationTimeSwitch
+0: 14ms, 1: 101ms, 2: 402ms
+Cloud Variables
+status: OK or error origin
+integ_time: integration time in ms
+gain: gain setting: 1 or 16
+auto_gain: auto gain enables: Yes/No
+illuminance: illuminance value in lux as a double
+Sint_ill: illuminance value in lux as an Integer
 */
 
-TSL2561 tsl;
+TSL2561 tsl(TSL2561_ADDR);
 
 // sensor related vars
-//boolean gain;
 uint16_t integrationTime;
 double il;
 uint32_t il_int;
@@ -27,15 +29,12 @@ boolean operational;
 
 
 //status vars
-char tsl_sta[11] = "undef";
-char error_label[21] = "NA";
+char tsl_sta[21] = "undef";
 char AutoGainDisplay[4] = "";
-unsigned int error_code;
+uint8_t error_code;
 unsigned int gainDisplay;
 unsigned int integrationTimeDisplay;
 
-//debug vars
-//unsigned int int_debug;
 
 void setup()
 {
@@ -46,6 +45,7 @@ void setup()
 
   // variables on the cloud (max 10)
   //Spark.variable("errorLabel",&error_label,STRING);
+  Spark.variable("status",&tsl_sta,STRING);
   Spark.variable("integ_time",&integrationTimeDisplay,INT);
   Spark.variable("gain",&gainDisplay,INT);
   Spark.variable("auto_gain",&AutoGainDisplay,STRING);
@@ -56,7 +56,7 @@ void setup()
   Spark.function("setExposure", setExposure);
 
   //connecting to light sensor device
-  if (tsl.begin(TSL2561_ADDR)) {
+  if (tsl.begin()) {
     strcpy(tsl_sta,"found");
   }
   else {
@@ -67,16 +67,16 @@ void setup()
   // setting the sensor: gain x1 and 101ms integration time
   if(!tsl.setTiming(false,1,integrationTime))
   {
-    error_code = tsl.getError() & 0x000000FF;
-    strcpy(error_label,"setTiming");
+    error_code = tsl.getError();
+    strcpy(tsl_sta,"setTimingError");
     return;
   }
 
 
   if (!tsl.setPowerUp())
   {
-    error_code = tsl.getError() & 0x000000FF;
-    strcpy(error_label,"PowerUP");
+    error_code = tsl.getError();
+    strcpy(tsl_sta,"PowerUPError");
     return;
   }
 
@@ -106,30 +106,31 @@ void loop()
   if (operational)
   {
     // device operational, update status vars
-    strcpy(error_label,"NA");
-    strcpy(tsl_sta,"Ok");
+    strcpy(tsl_sta,"OK");
 
     // get raw data from sensor
     if(!tsl.getData(broadband,ir,autoGainOn))
     {
-      error_code = tsl.getError() & 0x000000FF;
-      strcpy(error_label,"getData");
+      error_code = tsl.getError();
+      strcpy(tsl_sta,"saturated?");
       operational = false;
     }
+
+
 
     // compute illuminance value in lux
     if(!tsl.getLux(integrationTime,broadband,ir,il))
     {
-      error_code = tsl.getError() & 0x000000FF;
-      strcpy(error_label,"getLux");
+      error_code = tsl.getError();
+      strcpy(tsl_sta,"getLuxError");
       operational = false;
     }
 
     // try the int based calculation
     if(!tsl.getLuxInt(broadband,ir,il_int))
     {
-      error_code = tsl.getError() & 0x000000FF;
-      strcpy(error_label,"getLuxInt");
+      error_code = tsl.getError();
+      strcpy(tsl_sta,"getLuxIntError");
       operational = false;
     }
 
@@ -137,14 +138,14 @@ void loop()
   else
   // device not set correctly
   {
-      strcpy(tsl_sta,"Problem");
+      strcpy(tsl_sta,"OperationError");
       il = -1.0;
       // trying a fix
       // power down the sensor
       tsl.setPowerDown();
       delay(100);
       // re-init the sensor
-      if (tsl.begin(TSL2561_ADDR))
+      if (tsl.begin())
       {
         // power up
         tsl.setPowerUp();
@@ -201,8 +202,8 @@ int setExposure(String command)
     // setTiming has an error
     if(!_setTimingReturn){
         // set appropriate status variables
-        error_code = tsl.getError() & 0x000000FF;
-        strcpy(error_label,"setTimingInCloud");
+        error_code = tsl.getError();
+        strcpy(tsl_sta,"CloudSettingsError");
         //disable getting illuminance value
         operational = false;
         return -1;
