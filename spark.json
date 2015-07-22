@@ -1,0 +1,7 @@
+{
+  "name": "tsl2561-sparkfun",
+  "author": "Jaafar Benabdallah",
+  "license": "MIT",
+  "version": "0.1.0",
+  "description": "SparkFun TSL2561 library port for Photon"
+}
