@@ -7,7 +7,11 @@ This library re-uses code developed orginally by Sparkfun Electronics and Adafru
 I have also made the following contributions/modification on this library:
 
 1- modified SparkFun's TSL2561 arduino library to work on Photon
+
 2- changed the setTiming function for a simpler version and begin(void) to adapt to the new class public variables 
+
 3- added the autogain feature implemented in Adafruit's Arduino library in the getData function (with modifications)
+
 4- added Adafruit's integer based illuminance value (lux) calculating (pretty close to the float based calculation
+
 5- adopted Adafruit begin(void) function to check that the  device is connected by retrieving and checking the device ID
