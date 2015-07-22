@@ -1,3 +1,5 @@
+// This #include statement was automatically added by the Spark IDE.
+#include "tsl2561/tsl2561.h"
 
 /*
 demo code to use TSL2561 sensor remotely.
