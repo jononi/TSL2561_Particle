@@ -1,7 +1,7 @@
 {
-  "name": "tsl2561-sparkfun",
+  "name": "TSL2561",
   "author": "Jaafar Benabdallah",
-  "license": "MIT",
-  "version": "0.1.0",
-  "description": "SparkFun TSL2561 library port for Photon"
+  "license": "GPL v3",
+  "version": "1.0.0",
+  "description": "TSL2561 I2C light sensor Library for Photon"
 }
