@@ -13,7 +13,7 @@ D1                        <---->  SCL
 D0                        <---->  SDA
 Not connected (floating)  <---->  ADDR
 
-the breakout comes with its own pull-up resistors.
+the breakout board comes with its own pull-up resistors.
 */
 
 #include "tsl2561.h"
